@@ -5,19 +5,22 @@ input [1:0] in,in1,in2,in3,in4;
 output reg out;
 
 reg [1:0] temp;
+reg [1:0] temp_in;
 wire y;
 
 initial begin
 temp = 2'b11;
+temp_in = in;
 end
 
-twobit_comparator uut (in,temp,y);
+twobit_comparator uut (temp_in,temp,y);
 
 reg [1:0] t;
 integer i;
 
 always @ (*)
 begin
+temp_in = in;
 out = 0;
 for (i = 0 ; i<=3 ; i=i+1) 
 begin
