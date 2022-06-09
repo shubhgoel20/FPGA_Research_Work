@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module twobit_comparatornew_tb;
+module node_tb;
 
 	// Inputs
 	reg [1:0] in,in1,in2,in3,in4;
@@ -14,7 +14,7 @@ module twobit_comparatornew_tb;
 
 	// Instantiate the Unit Under Test (UUT)
 	node uut(
-		.in(in), .in1(in1), .in2(in2), .in3(in3), .in4(in4),.clk(clk)
+		.in(in), .in1(in1), .in2(in2), .in3(in3), .in4(in4),.clk(clk),
 		.out(out)
 	);
 
@@ -24,17 +24,18 @@ module twobit_comparatornew_tb;
         end
     end
 
-    reg [9:0] i;
-
-	initial begin
-		for (i = 0;i<= 1023; i=i+1) begin
-            {in,in1,in2,in3,in4} = i;
-            #40;
-        end
-	end
+    reg [9:0] i = 0;
+    
+    always @(posedge clk) begin 
+        {in,in1,in2,in3,in4} = i;
+        #40;
+        i = i+1;
+        
+        
+    end
 
     initial begin
-        #40960; $finish;
+        #51200; $finish;
     end
       
 endmodule

@@ -3,69 +3,57 @@
 module counter(input clk,input rst,output reg[2:0] out);
 always @(posedge clk) begin
     if(!rst)
-        out<=0;
+        out=0;
     else
-        out<=out+1;
+        out=out+1;
 end
 endmodule
 
 module node(in,in1,in2,in3,in4,clk,out);
-input [1:0] in,in1,in2,in3,in4,clk;
+input [1:0] in,in1,in2,in3,in4;
+input clk;
 output reg out;
 
 reg [1:0] temp;
-// reg [1:0] temp_in;
-reg [2:0] cnt;
+reg temp_o;
+wire [2:0] cnt;
 reg rst;
 wire y;
 
 initial begin
 temp = 2'b11;
-// temp_in = in;
-cnt = 3'b000;
-rst = 1;
 out = 0;
+temp_o = 0;
+rst = 0;
 end
 
 twobit_comparator cmp (in,temp,y);
 counter c(clk,rst,cnt);
 
-// reg [1:0] t;
-// integer i;
 
 always @ (posedge clk)
 begin
-// temp_in = in;
-// out = 0;
-// for (i = 0 ; i<=3 ; i=i+1) 
-// begin
-//     t=i;
+out=0;
+rst = 1;
 case(cnt)
-    3'b001:begin
+    3'b000:begin
         temp = in1;
+        temp_o=(temp_o|y);
+        end
+    3'b001:begin
+        temp = in2;
+        temp_o=(temp_o|y);
         end
     3'b010:begin
-        temp = in2;
+        temp = in3;
+        temp_o=(temp_o|y);
+        rst=0;
         end
     3'b011:begin
-        temp = in3;
-        end
-    3'b100:begin
         temp = in4;
+        out=(temp_o|y);
+        temp_o=0;
         end
 endcase
-// out =(out|y);
-// end  
-end
-always @(posedge clk) begin
-    if(!rst) begin
-        out<=0;
-        rst<=1;
-    end
-    else begin 
-        out<=(out|y);
-        if(cnt == 3'b100)
-            rst <= 0;
-    end
 end
 endmodule
