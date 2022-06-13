@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-module twobit_mesh26x18(
+module twobit_26x18_mesh(
 input [935:0] inp,
 input clk,
 output [467:0] out
