@@ -6,8 +6,10 @@ module pixel_foll_tb;
 	reg clk;
 	reg high;
 	integer i;
+    wire [467:0] out;
     reg [467:0] mesh;
 	reg [1:0] in[0:5];
+	reg [467:0] contour;
 
 	// Instantiate the Unit Under Test (UUT)
 	twobit_26x18_mesh uut (
@@ -15,7 +17,7 @@ module pixel_foll_tb;
 		.row(row),
 		.clk(clk),
 		.high(high),
-        .out(mesh)
+        .out(out)
 	);
 
     integer i, i_east, i_south ,x,y;
@@ -82,6 +84,7 @@ module pixel_foll_tb;
     end
 
     initial begin
+        mesh = 0;
         contour = 468'b111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111;
     end
     
@@ -95,6 +98,7 @@ module pixel_foll_tb;
     end
 
 	always @(posedge clk) begin
+	   contour = 468'b111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111;
         high = 0;
         for ( i=0 ; i<18 ; i=i+1 ) begin
             #5;row = i;
@@ -103,7 +107,7 @@ module pixel_foll_tb;
         #10;
         //Inputs will take one clock cycle to stablize.
         high = 1;
-        #500;
+        #450;
         //Output will become after 4 clock cycles and will remain active for one clock cycle.
         in[0] = {($random)%2,($random)%2};
 		in[1] = {($random)%2,($random)%2};
@@ -112,6 +116,7 @@ module pixel_foll_tb;
 		in[4] = {($random)%2,($random)%2};
 		in[5] = {($random)%2,($random)%2};
         //Pixel Following Algorithm begin-------------------------
+        mesh = out;
         for (i = 0 ; i<468 ; i=i+1 ) begin
             i_east = (i-i%26)+(i+1+26)%26;
             i_south = (i+26+468)%468;
@@ -144,6 +149,7 @@ module pixel_foll_tb;
                 end
             end
         end
+        #50;
 
 	end
   
