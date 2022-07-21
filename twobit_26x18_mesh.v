@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 module twobit_26x18_mesh(
-input [935:0] inp,     
+input [935:0] inp, //468 two bit pixel values 
 input clk,
 input high,
-input algo,
+input [1:0] algo, // algorithm selector
 output reg [467:0] contour
 );
 
@@ -13,6 +13,7 @@ reg [1871:0] mesh;
 integer i, i_east, i_south ,x,y;
 reg [5:0] ind;
 
+// Implementation of search neighbour task. It used in the pixel following algorithm 
 task searchneighbour;
 	input integer i;
 
@@ -66,6 +67,7 @@ task searchneighbour;
 	
 endtask
 
+//Input handling
 integer t;
 reg [1:0] in[0:467];
 always @ (posedge clk) begin
@@ -73,6 +75,8 @@ always @ (posedge clk) begin
 	    in[467-t] = {inp[(2*t)+1],inp[2*t]};
     end
 end
+
+//Generate hardware for mesh
 genvar j;
 generate
 	for ( j = 0 ; j<468 ; j=j+1 ) begin: comparator_block
@@ -80,10 +84,18 @@ generate
 	end
 endgenerate
 
-always @(*) begin
+initial begin 
+    contour = 468'b111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111;
+end
+
+always @(posedge clk) begin
 	contour = 468'b111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111;
 	mesh = out;
-	if(algo == 0) begin
+	//algo = 00: Pixel Following
+	//algo = 01: RDBF
+	//algo = 10: Vertex Following
+	if(algo == 2'b00) begin
+		//Pixel Following Algorithm Begins-----------------------------------------------
 		for (i = 467 ; i>=0 ; i=i-1 ) begin
 			i_east = (i-i%26)+(i-1+26)%26;
 			i_south = (i-26+468)%468;
@@ -116,13 +128,36 @@ always @(*) begin
 				end
 			end
 		end
+		//Pixel Following Algorithm ends----------------------------------------
 	end
-	else begin
+	else if(algo == 2'b01) begin
+		//RDBF Algorithm begins----------------------------------------------
 		for (i = 467 ; i>=0 ; i=i-1 ) begin
 			if((mesh[4*i+1]^mesh[4*i+2]) == 1) begin
 				contour[i] = 1'b0;
 			end
 		end
+		//RDBF Algorithm ends----------------------------------------------
+	end
+	else begin
+		//Vertex Following Algorithm begins----------------------------------------------
+		for (i = 467 ; i>=0 ; i=i-1) begin
+			i_east = (i-i%26)+(i-1+26)%26;
+			i_south = (i-26+468)%468;
+
+			if(contour[i_east] != 1'b0) begin            // for i_east
+				if((mesh[4*i]&mesh[4*i+1]&mesh[4*i+2]&mesh[4*i+3]) != (mesh[4*i_east]&mesh[4*i_east+1]&mesh[4*i_east+2]&mesh[4*i_east+3])) begin
+					contour[i_east] = 1'b0;
+				end
+			end
+
+			if(contour[i_south] != 1'b0) begin            // for i_south
+				if((mesh[4*i]&mesh[4*i+1]&mesh[4*i+2]&mesh[4*i+3]) != (mesh[4*i_south]&mesh[4*i_south+1]&mesh[4*i_south+2]&mesh[4*i_south+3])) begin
+					contour[i_south] = 1'b0;
+				end
+			end
+    	end
+		//Vertex Following Algorithm ends----------------------------------------------
 	end
 	mesh = 0;
 end
