@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module pixel_foll_tb;
+module combined_tb;
 	reg [935:0] inp; //468 two bit pixel values
 	reg clk;
 	reg high;
